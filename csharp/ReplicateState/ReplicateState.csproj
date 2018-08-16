@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Update="Improbable.SpatialOS.Platform.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Utils\Utils.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Improbable.SpatialOS.Platform" Version="13.2.0" />
+  </ItemGroup>
+</Project>
