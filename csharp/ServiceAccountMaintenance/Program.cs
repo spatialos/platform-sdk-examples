@@ -21,33 +21,33 @@ namespace ServiceAccountMaintenance
         ///     the current time. If the service account expires in fewer days than this, its lifetime will be extended
         ///     by DaysToExpandServiceAccountBy days.
         /// </summary>
-        private const int DaysRemainingAtWhichExpiryShouldBeIncreased = 2;
+        private const int DaysRemainingAtWhichExpiryShouldBeIncreased = 1;
 
         /// <summary>
         ///     How many days to expand the service account's lifetime by if it is too close to expiry (as defined by
         ///     DaysRemainingAtWhichExpiryShouldBeIncreased), relative to the current time.
         /// </summary>
-        private const int DaysToExpandServiceAccountBy = 2;
+        private const int DaysToExpandServiceAccountBy = 4;
 
         private const int NumberOfServiceAccountsToCreate = 10;
 
         /// <summary>
-        ///     This list keeps track of the IDs of the service accounts which we create during setup.
+        ///     This list keeps track of the IDs of the service accounts which you create during setup.
         /// </summary>
         private static List<long> ServiceAccountIds;
 
         /// <summary>
         ///     PLEASE REPLACE ME.
-        ///     The name of the service account created during setup.
+        ///     The name given to service accounts created during setup.
         /// </summary>
-        private const string ServiceAccountName = "service_account_name";
+        private const string ServiceAccountName = "sa_maintenance_scenario";
 
         private static readonly ServiceAccountServiceClient ServiceAccountServiceClient =
             ServiceAccountServiceClient.Create();
 
         /// <summary>
         ///     This contains the implementation of the "service account maintenance" scenario.
-        ///     1. Iterate through the service accounts in your organization.
+        ///     1. Iterate over the service accounts in your project.
         ///     2. If a service account has expired, or is close to expiry, prolong the expiry time to some point in the
         ///     future.
         /// </summary>
@@ -81,7 +81,7 @@ namespace ServiceAccountMaintenance
                 // Now extend the lifetime by increasing the expiry time relative to the current time
 
                 Console.WriteLine(
-                    $"  Extending service account '{serviceAccount.Name}' expiry time by {DaysToExpandServiceAccountBy} days from now");
+                    $"Extending service account '{serviceAccount.Name}' expiry time by {DaysToExpandServiceAccountBy} days from now");
 
                 ServiceAccountServiceClient.UpdateServiceAccount(new UpdateServiceAccountRequest
                 {
@@ -96,7 +96,7 @@ namespace ServiceAccountMaintenance
         }
 
         /// <summary>
-        ///     This creates some service accounts with permissions to read and write to a project, which will expire
+        ///     This creates some service accounts with permissions to read and write to a project, which expire
         ///     in one week.
         /// </summary>
         private static void Setup()
