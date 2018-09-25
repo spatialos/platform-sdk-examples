@@ -101,6 +101,7 @@ namespace ServiceAccountMaintenance
         /// </summary>
         private static void Setup()
         {
+            ServiceAccountIds = new List<long>();
             var perm = new Permission
             {
                 Parts = {new RepeatedField<string> {"prj", ProjectName}},
