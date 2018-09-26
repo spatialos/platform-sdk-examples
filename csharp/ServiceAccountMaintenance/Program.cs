@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
+using Improbable.SpatialOS.Platform.Common;
 using Improbable.SpatialOS.ServiceAccount.V1Alpha1;
 
 namespace ServiceAccountMaintenance
@@ -42,8 +43,19 @@ namespace ServiceAccountMaintenance
         /// </summary>
         private const string ServiceAccountName = "sa_maintenance_scenario";
 
+        private static readonly PlatformRefreshTokenCredential CredentialWithProvidedToken =
+            new PlatformRefreshTokenCredential(RefreshToken);
+
         private static readonly ServiceAccountServiceClient ServiceAccountServiceClient =
-            ServiceAccountServiceClient.Create();
+            ServiceAccountServiceClient.Create(credentials: CredentialWithProvidedToken);
+
+        /// <summary>
+        ///     PlEASE REPLACE ME.
+        ///     The SpatialOS Platform refresh token of a service account or a user account.
+        /// </summary>
+        private static string RefreshToken =>
+            Environment.GetEnvironmentVariable("IMPROBABLE_REFRESH_TOKEN") ?? "PLEASE_REPLACE_ME";
+
 
         /// <summary>
         ///     This contains the implementation of the "service account maintenance" scenario.
