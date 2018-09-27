@@ -144,7 +144,7 @@ namespace BYOAuthFlow
                     PlayerIdentityToken = pit,
                     LoginToken = loginToken,
                 },
-//              UseInsecureConnection = insecureConnection,
+              UseInsecureConnection = insecureConnection,
             };
 
             var locator = new Locator(locatorHost, lp);
