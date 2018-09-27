@@ -25,18 +25,6 @@ namespace BYOAuthFlow
         private const string ProjectName = "platform_sdk_examples";
 
         /// <summary>
-        ///     Please REPLACE ME.
-        ///     Locator Host.
-        /// </summary>
-        private const string LocatorHost = "localhost";
-
-        /// <summary>
-        ///     PlEASE REPLACE ME.
-        ///     The name of the deployment.
-        /// </summary>
-        private static readonly string DeploymentName = $"byoauth_flow_{StringUtils.Random(6)}";
-
-        /// <summary>
         ///     PlEASE REPLACE ME.
         ///     The path to a valid launch configuration json file.
         /// </summary>
@@ -48,10 +36,7 @@ namespace BYOAuthFlow
         /// </summary>
         private const string AssemblyId = "blank_project";
 
-        private static Deployment _deployment;
-
-        private static readonly PlatformRefreshTokenCredential CredentialWithProvidedToken =
-            new PlatformRefreshTokenCredential(RefreshToken);
+        private const int SpatialdPort = 9876;
 
 
         /// <summary>
@@ -72,80 +57,105 @@ namespace BYOAuthFlow
         /// <param name="args"></param>
         private static void Main(string[] args)
         {
-//                RunScenario(
-//                        PlayerIdentityTokenServiceClient.Create(credentials: CredentialWithProvidedToken), 
-//                        LoginTokenServiceClient.Create(credentials: CredentialWithProvidedToken),
-//                        DeploymentServiceClient.Create(credentials: CredentialWithProvidedToken));
-
-            var SpatialDPort = 1234;
-            var spatialDPlatformApiEndponit = new PlatformApiEndpoint("localhost", SpatialDPort, true);
+            Console.WriteLine("Starting Cloud Scenario");
+            var platformCredentials = new PlatformRefreshTokenCredential(RefreshToken);
             RunScenario(
-                PlayerIdentityTokenServiceClient.Create(spatialDPlatformApiEndponit),
-                LoginTokenServiceClient.Create(spatialDPlatformApiEndponit),
-                DeploymentServiceClient.Create(spatialDPlatformApiEndponit));
+                "locator.improbable.io",
+                PlayerIdentityTokenServiceClient.Create(credentials: platformCredentials),
+                LoginTokenServiceClient.Create(credentials: platformCredentials),
+                DeploymentServiceClient.Create(credentials: platformCredentials),
+                insecureConnection: false);
+
+//            Console.WriteLine("Starting Spatiald Scenario");
+//            var spatialdEndpoint = new PlatformApiEndpoint("localhost", SpatialdPort, true);
+//            RunScenario(
+//                PlayerIdentityTokenServiceClient.Create(spatialdEndpoint),
+//                LoginTokenServiceClient.Create(spatialdEndpoint),
+//                DeploymentServiceClient.Create(spatialdEndpoint),
+//                insecureConnection: true);
         }
 
-        private static void RunScenario(PlayerIdentityTokenServiceClient pitClient, LoginTokenServiceClient ltClient,
-            DeploymentServiceClient dsClient)
+        private static void RunScenario(string locatorHost, PlayerIdentityTokenServiceClient pitClient, LoginTokenServiceClient ltClient,
+            DeploymentServiceClient dsClient, bool insecureConnection)
         {
-            Setup(dsClient);
-
+            var deployment = Setup(dsClient);
             try
             {
-                Console.WriteLine("Generate a PIT");
-                var playerIdentityTokenResponse = pitClient.CreatePlayerIdentityToken(
-                    new CreatePlayerIdentityTokenRequest
-                    {
-                        Provider = "provider",
-                        PlayerIdentifier = "player_identifier",
-                        ProjectName = ProjectName,
-                    });
-                string pit = playerIdentityTokenResponse.PlayerIdentityToken;
+                var pit = CreatePIT(pitClient);
+                deployment = FindDeployment(dsClient, deployment.Id);
+                var loginToken = CreateLoginTokenForDeployment(ltClient, pit, deployment.Id);
+                ConnectToLocator(locatorHost, insecureConnection, pit, loginToken);
+            }
+            finally
+            {
+                Cleanup(dsClient, deployment);
+            }
+        }
 
-                Console.WriteLine("Choosing deployment");
-                var deployment = dsClient.ListDeployments(new ListDeploymentsRequest
+        private static string CreatePIT(PlayerIdentityTokenServiceClient pitClient)
+        {
+            Console.WriteLine("Generate a PIT");
+            var playerIdentityTokenResponse = pitClient.CreatePlayerIdentityToken(
+                new CreatePlayerIdentityTokenRequest
                 {
-                    ProjectName = ProjectName
-                }).First(d => d.Name == DeploymentName);
+                    Provider = "provider",
+                    PlayerIdentifier = "player_identifier",
+                    ProjectName = ProjectName,
+                });
+            string pit = playerIdentityTokenResponse.PlayerIdentityToken;
+            return pit;
+        }
 
-                Console.WriteLine("Generate a Login Token for the selected deployment");
-                var createLoginTokenResponse = ltClient.CreateLoginToken(
-                    new CreateLoginTokenRequest
-                    {
-                        PlayerIdentityToken = pit,
-                        DeploymentId = deployment.Id,
-                        LifetimeDuration = Duration.FromTimeSpan(new TimeSpan(0, 0, 30, 0)),
-                        WorkerType = "UnityClient",
-                    });
-                var loginToken = createLoginTokenResponse.LoginToken;
+        private static Deployment FindDeployment(DeploymentServiceClient dsc, string deploymentId)
+        {
+            Console.WriteLine("Choosing deployment");
+            return dsc.ListDeployments(new ListDeploymentsRequest
+            {
+                ProjectName = ProjectName
+            }).First(d => d.Id == deploymentId);
+        }
 
-                Console.WriteLine("Connect to the deployment {0} using the Login Token and PIT", DeploymentName);
-
-                var lp = new LocatorParameters
+        private static string CreateLoginTokenForDeployment(LoginTokenServiceClient ltClient,
+            string pit, string deploymentId)
+        {
+            Console.WriteLine("Generate a Login Token for the selected deployment");
+            var createLoginTokenResponse = ltClient.CreateLoginToken(
+                new CreateLoginTokenRequest
                 {
-                    PlayerIdentity = new PlayerIdentityCredentials
-                    {
-                        PlayerIdentityToken = pit,
-                        LoginToken = loginToken,
-                    },
-                    UseInsecureConnection = true,
-                };
+                    PlayerIdentityToken = pit,
+                    DeploymentId = deploymentId,
+                    LifetimeDuration = Duration.FromTimeSpan(new TimeSpan(0, 0, 30, 0)),
+                    WorkerType = "UnityClient",
+                });
+            var loginToken = createLoginTokenResponse.LoginToken;
+            return loginToken;
+        }
 
-                var locator = new Locator(LocatorHost, lp);
-                var connectionParameters = createConnectionParameters();
-                var connectionFuture = locator.ConnectAsync(connectionParameters);
+        private static void ConnectToLocator(string locatorHost, bool insecureConnection, string pit, string loginToken)
+        {
+            Console.WriteLine("Connect to the deployment using the Login Token and PIT");
+            var lp = new LocatorParameters
+            {
+                PlayerIdentity = new PlayerIdentityCredentials
+                {
+                    PlayerIdentityToken = pit,
+                    LoginToken = loginToken,
+                },
+//              UseInsecureConnection = insecureConnection,
+            };
 
+            var locator = new Locator(locatorHost, lp);
+            var connectionParameters = CreateConnectionParameters();
+            using (var connectionFuture = locator.ConnectAsync(connectionParameters))
+            {
                 var connectionOption = connectionFuture.Get(5000 /* Using milliseconds */);
                 var connection = connectionOption.Value;
                 Console.WriteLine("connected: {0}", connection.IsConnected);
             }
-            finally
-            {
-                Cleanup(dsClient);
-            }
+            
         }
 
-        private static ConnectionParameters createConnectionParameters()
+        private static ConnectionParameters CreateConnectionParameters()
         {
             var connectionParameters = new ConnectionParameters();
             connectionParameters.WorkerType = "UnityClient";
@@ -154,47 +164,49 @@ namespace BYOAuthFlow
             return connectionParameters;
         }
 
-        private static void Setup(DeploymentServiceClient dsc)
+        private static Deployment Setup(DeploymentServiceClient dsc)
         {
-            Console.WriteLine("Setting up for the scenario");
-            Console.WriteLine("Starting a cloud deployment");
             var launchConfig = File.ReadAllText(LaunchConfigFilePath);
-            _deployment = dsc.CreateDeployment(new CreateDeploymentRequest
+            var deploymentName = $"byoauth_flow_{StringUtils.Random(6)}";
+            Console.WriteLine($"Starting a deployment with name: {deploymentName}");
+
+            var deployment = dsc.CreateDeployment(new CreateDeploymentRequest
             {
                 Deployment = new Deployment
                 {
                     ProjectName = ProjectName,
-                    Name = DeploymentName,
+                    Name = deploymentName,
                     LaunchConfig = new LaunchConfig
                     {
                         ConfigJson = launchConfig
                     },
-                    AssemblyId = AssemblyId
+                    AssemblyId = AssemblyId,
                 }
             }).PollUntilCompleted().GetResultOrNull();
 
-            if (_deployment.Status == Deployment.Types.Status.Error)
+            if (deployment.Status == Deployment.Types.Status.Error)
             {
                 throw new Exception(
-                    "Failed to create the cloud deployment; please make sure to build the project by running `spatial build` in the project directory");
+                    "Failed to create deployment; please make sure to build the project by running `spatial build` in the project directory");
             }
+
+            return deployment;
         }
 
         /// <summary>
         ///     This stops the cloud deployments as a cleanup.
         /// </summary>
-        private static void Cleanup(DeploymentServiceClient dsc)
+        private static void Cleanup(DeploymentServiceClient dsc, Deployment deployment)
         {
-            if (_deployment.Status == Deployment.Types.Status.Running ||
-                _deployment.Status == Deployment.Types.Status.Starting || 
-                _deployment.Status == Deployment.Types.Status.Stopped)
+            if (deployment.Status == Deployment.Types.Status.Running ||
+                deployment.Status == Deployment.Types.Status.Starting)
             {
                 Console.WriteLine("Stopping deployment");
 
                 dsc.StopDeployment(new StopDeploymentRequest
                 {
-                    Id = _deployment.Id,
-                    ProjectName = _deployment.ProjectName
+                    Id = deployment.Id,
+                    ProjectName = deployment.ProjectName
                 });
             }
         }
