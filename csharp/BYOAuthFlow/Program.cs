@@ -36,6 +36,9 @@ namespace BYOAuthFlow
         /// </summary>
         private const string AssemblyId = "blank_project";
 
+        /// <summary>
+        /// The Spatiald port to use for the local scenario
+        /// </summary>
         private const int SpatialdPort = 9876;
 
 
@@ -44,7 +47,7 @@ namespace BYOAuthFlow
         ///     The SpatialOS Platform refresh token of a service account or a user account.
         /// </summary>
         private static string RefreshToken =>
-            Environment.GetEnvironmentVariable("IMPROBABLE_REFRESH_TOKEN") ?? "";
+            Environment.GetEnvironmentVariable("IMPROBABLE_REFRESH_TOKEN") ?? "5b6c50ed-f488-45f2-b02b-e6caa346b26e";
 
         /// <summary>
         ///     This contains the implementation of the "bring your own auth flow" scenario.
@@ -149,8 +152,16 @@ namespace BYOAuthFlow
             using (var connectionFuture = locator.ConnectAsync(connectionParameters))
             {
                 var connectionOption = connectionFuture.Get(5000 /* Using milliseconds */);
-                var connection = connectionOption.Value;
-                Console.WriteLine("connected: {0}", connection.IsConnected);
+                if (connectionOption.HasValue)
+                {
+                    var connection = connectionOption.Value;
+                    Console.WriteLine("connected: {0}", connection.IsConnected);
+                }
+                else
+                {
+                    Console.WriteLine("connection returned nothing");
+                }
+
             }
             
         }
