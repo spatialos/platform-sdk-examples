@@ -10,16 +10,8 @@ SDK_VERSION="13.3.0"
 mkdir -p "${DOWNLOAD_DIR}"
 
 # Get the tools
-# * Spatial Schema compiler
-# * Standard Library Schemas
 # * Core SDK for all platforms to enable building workers for MacOS, Windows or Linux
 # * C# SDK
-# if [ ! -f "${DOWNLOAD_DIR}/schema_compiler-x86_64-${PLATFORM_NAME}.zip" ]; then
-#   spatial package retrieve --force tools "schema_compiler-x86_64-${PLATFORM_NAME}" "${SDK_VERSION}" "${DOWNLOAD_DIR}/schema_compiler-x86_64-${PLATFORM_NAME}.zip"
-# fi
-# if [ ! -f "$DOWNLOAD_DIR/standard_library.zip" ]; then
-#   spatial package retrieve --force schema standard_library "${SDK_VERSION}" "$DOWNLOAD_DIR/standard_library.zip"
-# fi
 if [ ! -f "$DOWNLOAD_DIR/csharp.zip" ]; then
   spatial package retrieve --force worker_sdk csharp "${SDK_VERSION}" "$DOWNLOAD_DIR/csharp.zip"
 fi

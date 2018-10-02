@@ -47,7 +47,7 @@ namespace BYOAuthFlow
         ///     The SpatialOS Platform refresh token of a service account or a user account.
         /// </summary>
         private static string RefreshToken =>
-            Environment.GetEnvironmentVariable("IMPROBABLE_REFRESH_TOKEN") ?? "5b6c50ed-f488-45f2-b02b-e6caa346b26e";
+            Environment.GetEnvironmentVariable("IMPROBABLE_REFRESH_TOKEN") ?? "";
 
         /// <summary>
         ///     This contains the implementation of the "bring your own auth flow" scenario.
@@ -105,8 +105,7 @@ namespace BYOAuthFlow
                     PlayerIdentifier = "player_identifier",
                     ProjectName = ProjectName,
                 });
-            string pit = playerIdentityTokenResponse.PlayerIdentityToken;
-            return pit;
+            return playerIdentityTokenResponse.PlayerIdentityToken;
         }
 
         private static Deployment FindDeployment(DeploymentServiceClient dsc, string deploymentId)
@@ -137,7 +136,7 @@ namespace BYOAuthFlow
         private static void ConnectToLocator(string locatorHost, bool insecureConnection, string pit, string loginToken)
         {
             Console.WriteLine("Connect to the deployment using the Login Token and PIT");
-            var lp = new LocatorParameters
+            var locatorParameters = new LocatorParameters
             {
                 PlayerIdentity = new PlayerIdentityCredentials
                 {
@@ -147,7 +146,7 @@ namespace BYOAuthFlow
               UseInsecureConnection = insecureConnection,
             };
 
-            var locator = new Locator(locatorHost, lp);
+            var locator = new Locator(locatorHost, locatorParameters);
             var connectionParameters = CreateConnectionParameters();
             using (var connectionFuture = locator.ConnectAsync(connectionParameters))
             {
