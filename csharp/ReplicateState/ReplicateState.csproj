@@ -12,6 +12,6 @@
     <ProjectReference Include="..\Utils\Utils.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Improbable.SpatialOS.Platform" Version="13.2.0" />
+    <PackageReference Include="Improbable.SpatialOS.Platform" Version="13.3.0" />
   </ItemGroup>
 </Project>
