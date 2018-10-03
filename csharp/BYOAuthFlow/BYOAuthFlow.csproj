@@ -31,12 +31,15 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Improbable.SpatialOS.Platform, Version=999.9.9.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>../deps/Improbable.SpatialOS.Platform.dll</HintPath>
+      <HintPath>..\deps\Improbable.SpatialOS.Platform.dll</HintPath>
     </Reference>
     <Reference Include="Improbable.WorkerSdkCsharp, Version=13.2.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\worker_sdk\Improbable.WorkerSdkCsharp.dll</HintPath>
     </Reference>
     <Reference Include="Improbable.WorkerSdkCsharp, Version=13.3.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\deps\Improbable.WorkerSdkCsharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Improbable.WorkerSdkCsharp, Version=13.4.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\deps\Improbable.WorkerSdkCsharp.dll</HintPath>
     </Reference>
   </ItemGroup>

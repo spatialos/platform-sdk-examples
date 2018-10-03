@@ -6,7 +6,7 @@ cd "$(dirname "$0")"
 
 BUILD_DIR="$(pwd)"
 DOWNLOAD_DIR="${BUILD_DIR}/deps"
-SDK_VERSION="13.3.0"
+SDK_VERSION="13.4.0-b6699-4526b-WORKER-SNAPSHOT"
 mkdir -p "${DOWNLOAD_DIR}"
 
 # Get the tools

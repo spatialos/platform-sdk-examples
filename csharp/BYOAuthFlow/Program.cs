@@ -61,24 +61,28 @@ namespace BYOAuthFlow
         private static void Main(string[] args)
         {
             Console.WriteLine("Starting Cloud Scenario");
+            
             var platformCredentials = new PlatformRefreshTokenCredential(RefreshToken);
             RunScenario(
                 "locator.improbable.io",
+                443,
                 PlayerIdentityTokenServiceClient.Create(credentials: platformCredentials),
                 LoginTokenServiceClient.Create(credentials: platformCredentials),
                 DeploymentServiceClient.Create(credentials: platformCredentials),
                 insecureConnection: false);
 
-//            Console.WriteLine("Starting Spatiald Scenario");
-//            var spatialdEndpoint = new PlatformApiEndpoint("localhost", SpatialdPort, true);
-//            RunScenario(
-//                PlayerIdentityTokenServiceClient.Create(spatialdEndpoint),
-//                LoginTokenServiceClient.Create(spatialdEndpoint),
-//                DeploymentServiceClient.Create(spatialdEndpoint),
-//                insecureConnection: true);
+            Console.WriteLine("Starting Spatiald Scenario");
+            var spatialdEndpoint = new PlatformApiEndpoint("localhost", SpatialdPort, true);
+            RunScenario(
+                "localhost",
+                SpatialdPort,
+                PlayerIdentityTokenServiceClient.Create(spatialdEndpoint),
+                LoginTokenServiceClient.Create(spatialdEndpoint),
+                DeploymentServiceClient.Create(spatialdEndpoint),
+                insecureConnection: true);
         }
 
-        private static void RunScenario(string locatorHost, PlayerIdentityTokenServiceClient pitClient, LoginTokenServiceClient ltClient,
+        private static void RunScenario(string locatorHost, ushort locatorPort, PlayerIdentityTokenServiceClient pitClient, LoginTokenServiceClient ltClient,
             DeploymentServiceClient dsClient, bool insecureConnection)
         {
             var deployment = Setup(dsClient);
@@ -87,7 +91,7 @@ namespace BYOAuthFlow
                 var pit = CreatePIT(pitClient);
                 deployment = FindDeployment(dsClient, deployment.Id);
                 var loginToken = CreateLoginTokenForDeployment(ltClient, pit, deployment.Id);
-                ConnectToLocator(locatorHost, insecureConnection, pit, loginToken);
+                ConnectToLocator(locatorHost, locatorPort, insecureConnection, pit, loginToken);
             }
             finally
             {
@@ -133,7 +137,7 @@ namespace BYOAuthFlow
             return loginToken;
         }
 
-        private static void ConnectToLocator(string locatorHost, bool insecureConnection, string pit, string loginToken)
+        private static void ConnectToLocator(string locatorHost, ushort locatorPort, bool insecureConnection, string pit, string loginToken)
         {
             Console.WriteLine("Connect to the deployment using the Login Token and PIT");
             var locatorParameters = new LocatorParameters
@@ -146,7 +150,7 @@ namespace BYOAuthFlow
               UseInsecureConnection = insecureConnection,
             };
 
-            var locator = new Locator(locatorHost, locatorParameters);
+            var locator = new Locator(locatorHost, locatorPort, locatorParameters);
             var connectionParameters = CreateConnectionParameters();
             using (var connectionFuture = locator.ConnectAsync(connectionParameters))
             {
