@@ -6,19 +6,19 @@
   <ItemGroup>
     <None Include="..\deps\libCoreSdkDll.dylib">
       <Link>libCoreSdkDll.dylib</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>CopyAlways</CopyToOutputDirectory>
     </None>
     <None Include="..\deps\CoreSdkDll.dll">
       <Link>CoreSdkDll.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>CopyAlways</CopyToOutputDirectory>
     </None>
     <None Include="..\deps\CoreSdkDll.lib">
       <Link>CoreSdkDll.lib</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>CopyAlways</CopyToOutputDirectory>
     </None>
     <None Include="..\deps\libCoreSdkDll.so">
       <Link>libCoreSdkDll.so</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>CopyAlways</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -35,9 +35,6 @@
     </Reference>
     <Reference Include="Improbable.WorkerSdkCsharp, Version=13.2.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\worker_sdk\Improbable.WorkerSdkCsharp.dll</HintPath>
-    </Reference>
-    <Reference Include="Improbable.WorkerSdkCsharp, Version=13.3.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\deps\Improbable.WorkerSdkCsharp.dll</HintPath>
     </Reference>
     <Reference Include="Improbable.WorkerSdkCsharp, Version=13.4.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\deps\Improbable.WorkerSdkCsharp.dll</HintPath>

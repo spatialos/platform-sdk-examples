@@ -9,9 +9,7 @@ DOWNLOAD_DIR="${BUILD_DIR}/deps"
 SDK_VERSION="13.4.0-b6699-4526b-WORKER-SNAPSHOT"
 mkdir -p "${DOWNLOAD_DIR}"
 
-# Get the tools
-# * Core SDK for all platforms to enable building workers for MacOS, Windows or Linux
-# * C# SDK
+# Download C# Worker SDK
 if [ ! -f "$DOWNLOAD_DIR/csharp.zip" ]; then
   spatial package retrieve --force worker_sdk csharp "${SDK_VERSION}" "$DOWNLOAD_DIR/csharp.zip"
 fi
@@ -31,4 +29,4 @@ unzip -o "${DOWNLOAD_DIR}/core-dynamic-x86_64-win32.zip"
 unzip -o "${DOWNLOAD_DIR}/core-dynamic-x86_64-linux.zip"
 unzip -o "${DOWNLOAD_DIR}/core-dynamic-x86_64-macos.zip"
 popd
-echo "WorkerSDK dependencies downloaded"
+echo "Worker SDK dependencies downloaded"

@@ -18,49 +18,49 @@ namespace BYOAuthFlow
     internal class Program
     {
         /// <summary>
-        ///     PlEASE REPLACE ME.
+        ///     PLEASE REPLACE ME.
         ///     Your SpatialOS project name.
-        ///     It should be the same as the name specified in the local spaitalos.json file used to start spatiald.
+        ///     It should be the same as the name specified in the local spatialos.json file used to start local API service.
         /// </summary>
         private const string ProjectName = "platform_sdk_examples";
 
         /// <summary>
-        ///     PlEASE REPLACE ME.
+        ///     PLEASE REPLACE ME.
         ///     The path to a valid launch configuration json file.
         /// </summary>
         private const string LaunchConfigFilePath = "../../blank_project/default_launch.json";
 
         /// <summary>
-        ///     PlEASE REPLACE ME.
-        ///     The assembly you would want the cloud deployment to use.
+        ///     PLEASE REPLACE ME.
+        ///     The assembly you want the cloud deployment to use.
         /// </summary>
         private const string AssemblyId = "blank_project";
 
         /// <summary>
-        /// The Spatiald port to use for the local scenario
+        /// The local API service port to use for the local scenario.
         /// </summary>
-        private const int SpatialdPort = 9876;
+        private const int localAPIServicePort = 9876;
 
 
         /// <summary>
-        ///     PlEASE REPLACE ME.
-        ///     The SpatialOS Platform refresh token of a service account or a user account.
+        ///     PLEASE REPLACE ME.
+        ///     The SpatialOS refresh token of a service account or a user account.
         /// </summary>
         private static string RefreshToken =>
-            Environment.GetEnvironmentVariable("IMPROBABLE_REFRESH_TOKEN") ?? "";
+            Environment.GetEnvironmentVariable("IMPROBABLE_REFRESH_TOKEN") ?? "PLEASE_REPLACE_ME";
 
         /// <summary>
-        ///     This contains the implementation of the "bring your own auth flow" scenario.
+        ///     This contains the implementation of the "integrate your own authentication provide" scenario.
         ///     1. Start a cloud deployment.
-        ///     2. Generate a Player Identity Token.
+        ///     2. Generate a PlayerIdentityToken.
         ///     3. List deployments.
-        ///     4. Generate a Login Token for a selected deployment.
-        ///     5. Connect to the deployment using the Player Identity Token and the Login Token.
+        ///     4. Generate a LoginToken for a selected deployment.
+        ///     5. Connect to the deployment using the PlayerIdentityToken and the LoginToken.
         /// </summary>
         /// <param name="args"></param>
         private static void Main(string[] args)
         {
-            Console.WriteLine("Starting Cloud Scenario");
+            Console.WriteLine("Starting cloud scenario");
             
             var platformCredentials = new PlatformRefreshTokenCredential(RefreshToken);
             RunScenario(
@@ -71,14 +71,14 @@ namespace BYOAuthFlow
                 DeploymentServiceClient.Create(credentials: platformCredentials),
                 insecureConnection: false);
 
-            Console.WriteLine("Starting Spatiald Scenario");
-            var spatialdEndpoint = new PlatformApiEndpoint("localhost", SpatialdPort, true);
+            Console.WriteLine("Starting Local API service Scenario");
+            var localAPIServiceEndpoint = new PlatformApiEndpoint("localhost", localAPIServicePort, true);
             RunScenario(
                 "localhost",
-                SpatialdPort,
-                PlayerIdentityTokenServiceClient.Create(spatialdEndpoint),
-                LoginTokenServiceClient.Create(spatialdEndpoint),
-                DeploymentServiceClient.Create(spatialdEndpoint),
+                localAPIServicePort,
+                PlayerIdentityTokenServiceClient.Create(localAPIServiceEndpoint),
+                LoginTokenServiceClient.Create(localAPIServiceEndpoint),
+                DeploymentServiceClient.Create(localAPIServiceEndpoint),
                 insecureConnection: true);
         }
 
@@ -88,7 +88,7 @@ namespace BYOAuthFlow
             var deployment = Setup(dsClient);
             try
             {
-                var pit = CreatePIT(pitClient);
+                var pit = CreatePlayerIdentityToken(pitClient);
                 deployment = FindDeployment(dsClient, deployment.Id);
                 var loginToken = CreateLoginTokenForDeployment(ltClient, pit, deployment.Id);
                 ConnectToLocator(locatorHost, locatorPort, insecureConnection, pit, loginToken);
@@ -99,9 +99,9 @@ namespace BYOAuthFlow
             }
         }
 
-        private static string CreatePIT(PlayerIdentityTokenServiceClient pitClient)
+        private static string CreatePlayerIdentityToken(PlayerIdentityTokenServiceClient pitClient)
         {
-            Console.WriteLine("Generate a PIT");
+            Console.WriteLine("Generate a PlayerIdentityToken");
             var playerIdentityTokenResponse = pitClient.CreatePlayerIdentityToken(
                 new CreatePlayerIdentityTokenRequest
                 {
@@ -139,7 +139,7 @@ namespace BYOAuthFlow
 
         private static void ConnectToLocator(string locatorHost, ushort locatorPort, bool insecureConnection, string pit, string loginToken)
         {
-            Console.WriteLine("Connect to the deployment using the Login Token and PIT");
+            Console.WriteLine("Connect to the deployment using the LoginToken and PlayerIdentityToken");
             var locatorParameters = new LocatorParameters
             {
                 PlayerIdentity = new PlayerIdentityCredentials
@@ -201,7 +201,7 @@ namespace BYOAuthFlow
             if (deployment.Status == Deployment.Types.Status.Error)
             {
                 throw new Exception(
-                    "Failed to create deployment; please make sure to build the project by running `spatial build` in the project directory");
+                    "Failed to start deployment; please make sure to build the project by running `spatial build` in the project directory");
             }
 
             return deployment;
