@@ -50,11 +50,11 @@ namespace BYOAuthFlow
             Environment.GetEnvironmentVariable("IMPROBABLE_REFRESH_TOKEN") ?? "PLEASE_REPLACE_ME";
 
         /// <summary>
-        ///     This contains the implementation of the "integrate your own authentication provide" scenario.
+        ///     This contains the implementation of the "integrate your own authentication provider" scenario.
         ///     1. Start a cloud deployment.
-        ///     2. Generate a PlayerIdentityToken.
+        ///     2. Create a PlayerIdentityToken.
         ///     3. List deployments.
-        ///     4. Generate a LoginToken for a selected deployment.
+        ///     4. Create a LoginToken for a selected deployment.
         ///     5. Connect to the deployment using the PlayerIdentityToken and the LoginToken.
         /// </summary>
         /// <param name="args"></param>
@@ -71,7 +71,7 @@ namespace BYOAuthFlow
                 DeploymentServiceClient.Create(credentials: platformCredentials),
                 insecureConnection: false);
 
-            Console.WriteLine("Starting Local API service Scenario");
+            Console.WriteLine("Starting local API service scenario");
             var localAPIServiceEndpoint = new PlatformApiEndpoint("localhost", localAPIServicePort, true);
             RunScenario(
                 "localhost",
@@ -101,7 +101,7 @@ namespace BYOAuthFlow
 
         private static string CreatePlayerIdentityToken(PlayerIdentityTokenServiceClient pitClient)
         {
-            Console.WriteLine("Generate a PlayerIdentityToken");
+            Console.WriteLine("Create a PlayerIdentityToken");
             var playerIdentityTokenResponse = pitClient.CreatePlayerIdentityToken(
                 new CreatePlayerIdentityTokenRequest
                 {
@@ -124,7 +124,7 @@ namespace BYOAuthFlow
         private static string CreateLoginTokenForDeployment(LoginTokenServiceClient ltClient,
             string pit, string deploymentId)
         {
-            Console.WriteLine("Generate a Login Token for the selected deployment");
+            Console.WriteLine("Create a LoginToken for the selected deployment");
             var createLoginTokenResponse = ltClient.CreateLoginToken(
                 new CreateLoginTokenRequest
                 {
@@ -158,11 +158,11 @@ namespace BYOAuthFlow
                 if (connectionOption.HasValue)
                 {
                     var connection = connectionOption.Value;
-                    Console.WriteLine("connected: {0}", connection.IsConnected);
+                    Console.WriteLine("Connected: {0}", connection.IsConnected);
                 }
                 else
                 {
-                    Console.WriteLine("connection returned nothing");
+                    Console.WriteLine("Connection returned nothing");
                 }
 
             }
@@ -171,11 +171,11 @@ namespace BYOAuthFlow
 
         private static ConnectionParameters CreateConnectionParameters()
         {
-            var connectionParameters = new ConnectionParameters();
-            connectionParameters.WorkerType = "UnityClient";
-            connectionParameters.Network.ConnectionType = NetworkConnectionType.Tcp;
-            connectionParameters.Network.UseExternalIp = true;
-            return connectionParameters;
+            return new ConnectionParameters
+            {
+                WorkerType = "UnityClient",
+                Network = {ConnectionType = NetworkConnectionType.Tcp, UseExternalIp = true}
+            };
         }
 
         private static Deployment Setup(DeploymentServiceClient dsc)
